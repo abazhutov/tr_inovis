@@ -1,0 +1,7 @@
+.env*
+.venv/
+venv/
+plugins/
+logs/
+tz.md
+__pycache__/
