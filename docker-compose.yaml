@@ -8,24 +8,13 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${POSTGRES_PASSWORD}@postgres/airflow
-    AIRFLOW_CONN_OPR_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@opr:5432/airflow"
-    AIRFLOW_CONN_MRR_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@mrr:5432/airflow"
-    AIRFLOW_CONN_STG_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@stg:5432/airflow"
-    AIRFLOW_CONN_DWH_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@dwh:5432/airflow"
     AIRFLOW__FAB__AUTH_BACKEND: db
     AIRFLOW_ADMIN_PASS: AIRFLOW_ADMIN_PASS
-    AIRFLOW__WEBSERVER__BASE_URL: http://localhost:8080
-    AIRFLOW__WEBSERVER__WEB_SERVER_HOST: 0.0.0.0
-    AIRFLOW__LOGGING__WORKER_LOG_SERVER_PORT: 8793  
-    AIRFLOW__WEBSERVER__SECRET_KEY: AIRFLOW__WEBSERVER__SECRET_KEY  
-    # AIRFLOW_UID: AIRFLOW_UID
   volumes:
     - ./dags:/opt/airflow/dags
     - ./plugins:/opt/airflow/plugins
     - ./sql:/opt/airflow/sql
-    - ./logs:/opt/airflow/logs 
-  # ports:
-    # - "8793:8793"   
+    - ./logs:/opt/airflow/logs    
   user: "${AIRFLOW_UID:-50000}:0"    
   depends_on:
     - postgres
@@ -87,10 +76,10 @@ services:
     <<: *airflow-common
     command: >
       bash -c "airflow db init &&
-      airflow connections add 'opr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@opr:5432/airflow' &&
-      airflow connections add 'mrr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@mrr:5432/airflow' &&
-      airflow connections add 'stg_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@stg:5432/airflow' &&
-      airflow connections add 'dwh_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@dwh:5432/airflow' &&
+      airflow connections add 'opr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5432/airflow' &&
+      airflow connections add 'mrr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5431/airflow' &&
+      airflow connections add 'stg_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5433/airflow' &&
+      airflow connections add 'dwh_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5434/airflow' &&
       airflow users create 
       --username admin 
       --firstname admin 

@@ -1,5 +1,5 @@
 create table if not exists sales(
-	customerId bigint primary key, 
+	customerId bigint, 
 	productId bigint, 
 	qty bigint,
 	created_at TIMESTAMP,
@@ -17,6 +17,7 @@ create table if not exists products (
 	groupname TEXT,
 	updated_at TIMESTAMP
 );
+commit;
 
 insert into customers(id, name, country, updated_at)
 values(1010, 'CUSTOMER10', 'VIP', '2026-02-18 00:00:00'),
