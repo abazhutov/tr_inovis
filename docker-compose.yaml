@@ -8,6 +8,10 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${POSTGRES_PASSWORD}@postgres/airflow
+    AIRFLOW_CONN_OPR_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@opr:5432/airflow"
+    AIRFLOW_CONN_MRR_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@mrr:5432/airflow"
+    AIRFLOW_CONN_STG_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@stg:5432/airflow"
+    AIRFLOW_CONN_DWH_POSTGRES: "postgres://airflow:${POSTGRES_PASSWORD}@dwh:5432/airflow"    
     AIRFLOW__FAB__AUTH_BACKEND: db
     AIRFLOW_ADMIN_PASS: AIRFLOW_ADMIN_PASS
   volumes:
