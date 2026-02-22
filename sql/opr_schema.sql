@@ -38,7 +38,7 @@ values(1100, 'PRODUCT100', 'France', current_date-interval '1 day'),
 	(1700,   'PRODUCT700', 'Albania', '2026-02-19 23:59:59'),
 	(1800,   'PRODUCT800', 'Albania', current_date);
 
-insert into sales(customerId, productId, qty, created_at, updated_at)
+insert into sales(customerId, productId, qty, updated_at)
 values(1010, 1100, 1,current_date-interval '1 day'),
 	(1020, 1200, 1,  current_date+interval '1 day'),
 	(1030, 1300, 30, current_date),

@@ -10,10 +10,18 @@ create table if not exists dwh_dim_products (
 	groupname text,
 	updated_at date
 );
-create table if not exists dwh_high_water_mark (
+create table if not exists high_water_mark (
     table_name text primary key,
-    last_updated date
+    last_update date
 );
+
+insert into high_water_mark (table_name, last_update) 
+values ('sales', '1900-01-01'),
+	('customers', '1900-01-01'),
+	('products', '1900-01-01')
+on conflict (table_name) do nothing;
+commit;
+
 create table if not exists dwh_fact_sales (	
 	customerId bigint references dwh_dim_customers(id), 
 	productId bigint references dwh_dim_products(id),
@@ -23,3 +31,16 @@ create table if not exists dwh_fact_sales (
 commit;
 create unique index if not exists idx_dwh_fact_sales_customer_product ON dwh_fact_sales(customerId, productId);
 commit;
+
+create table if not exists etl_process_log (
+    id bigserial primary key,
+    dag_id text not null,
+    task_id text not null,
+    run_id text not null,
+    status bool not null,                
+    start_time timestamp not null,
+    end_time timestamp not null,
+    duration_seconds numeric(12,3) not null,
+    error_message text,
+    created_at timestamp default now()
+);
