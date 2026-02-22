@@ -23,13 +23,13 @@ on conflict (table_name) do nothing;
 commit;
 
 create table if not exists dwh_fact_sales (	
-	customerId bigint references dwh_dim_customers(id), 
-	productId bigint references dwh_dim_products(id),
+	customer_id bigint, 
+	product_id bigint,
 	qty bigint,
 	updated_at date
 );
 commit;
-create unique index if not exists idx_dwh_fact_sales_customer_product ON dwh_fact_sales(customerId, productId);
+create unique index if not exists idx_dwh_fact_sales_customer_product ON dwh_fact_sales(customer_id, product_id);
 commit;
 
 create table if not exists etl_process_log (

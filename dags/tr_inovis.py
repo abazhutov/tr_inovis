@@ -10,8 +10,8 @@ def get_last_updated():
     pg_hook = PostgresHook(postgres_conn_id="dwh_postgres")
     conn = pg_hook.get_conn()
     cursor = conn.cursor()
-    cursor.execute("select max(coalesce(last_updated, '1900-01-01')) "\
-                   "from dwh_high_water_mark where table_name = 'dwh_high_water_mark'")
+    cursor.execute("select max(coalesce(last_update, '1900-01-01')) "\
+                   "from high_water_mark where table_name = 'sales'")
     last_updated = cursor.fetchall()[0][0]   
     cursor.close()
     conn.close()
@@ -41,29 +41,29 @@ def insert(target_table, rows):
     cursor = conn.cursor()
     for row in rows:        
         if "sales" in target_table:
-            customerId, productId, qty, created_at, updated_at = row
+            customerId, productId, qty, updated_at = row
             sql =  f"INSERT INTO {target_table} " \
-                "VALUES (%s, %s, %s, %s, %s) " \
-                "ON CONFLICT (customerId, productId) " \
-                "DO UPDATE " \
-                "SET qty = EXCLUDED.qty,created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at"
-            cursor.execute(sql, [customerId, productId, qty, created_at, updated_at])
+                "VALUES (%s, %s, %s, %s) " \
+                # "ON CONFLICT (customerId, productId) " \
+                # "DO UPDATE " \
+                # "SET qty = EXCLUDED.qty, updated_at = EXCLUDED.updated_at"
+            cursor.execute(sql, [customerId, productId, qty, updated_at])
         elif "customers" in target_table:
-            customerId, name, country, created_at, updated_at = row
+            customerId, name, country, updated_at = row
             sql =  f"INSERT INTO {target_table} " \
-                "VALUES (%s, %s, %s, %s, %s) "\
+                "VALUES (%s, %s, %s, %s) "\
                 "ON CONFLICT (customerId) " \
                 "DO UPDATE " \
                 "SET name = EXCLUDED.name, country = EXCLUDED.country, updated_at = EXCLUDED.updated_at" 
-            cursor.execute(sql, [customerId, name, country, created_at, updated_at])
+            cursor.execute(sql, row)
         elif "products" in target_table:
-            productId, name, price, group_name, created_at, updated_at = row
+            productId, name, price, group_name, updated_at = row
             sql =  f"INSERT INTO {target_table} "\
-                "VALUES (%s, %s, %s, %s, %s, %s) "\
+                "VALUES (%s, %s, %s, %s, %s) "\
                 "ON CONFLICT (productId) " \
                 "DO UPDATE " \
                 "SET name = EXCLUDED.name, price = EXCLUDED.price, group_name = EXCLUDED.group_name, updated_at = EXCLUDED.updated_at"
-            cursor.execute(sql, [productId, name, price, group_name, created_at, updated_at])
+            cursor.execute(sql, row)
 
     conn.commit()
     cursor.close()

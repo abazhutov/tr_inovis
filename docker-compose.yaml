@@ -45,6 +45,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: airflow
     volumes: 
+      # - ./data:/var/lib/postgresql/data    
       - ./sql/opr_schema.sql:/docker-entrypoint-initdb.d/opr_schema.sql     
     ports:
       - "5431:5432"
@@ -55,6 +56,9 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: airflow
+    volumes: 
+      # - ./data:/var/lib/postgresql/data      
+      - ./sql/create_tables_mrr.sql:/docker-entrypoint-initdb.d/create_tables_mrr.sql 
     ports:
       - "5432:5432"
 
@@ -64,6 +68,9 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: airflow
+    volumes:      
+      # - ./data:/var/lib/postgresql/data
+      - ./sql/create_tables_stg.sql:/docker-entrypoint-initdb.d/create_tables_stg.sql
     ports:
       - "5433:5432"
 
@@ -73,6 +80,9 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: airflow
+    volumes:    
+      # - ./data:/var/lib/postgresql/data     
+      - ./sql/create_tables_dwh.sql:/docker-entrypoint-initdb.d/create_tables_dwh.sql
     ports:
       - "5434:5432"
 
@@ -80,10 +90,10 @@ services:
     <<: *airflow-common
     command: >
       bash -c "airflow db init &&
-      airflow connections add 'opr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5432/airflow' &&
-      airflow connections add 'mrr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5431/airflow' &&
-      airflow connections add 'stg_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5433/airflow' &&
-      airflow connections add 'dwh_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@host.docker.internal:5434/airflow' &&
+      airflow connections add 'opr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@opr:5432/airflow' &&
+      airflow connections add 'mrr_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@mrr:5432/airflow' &&
+      airflow connections add 'stg_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@stg:5432/airflow' &&
+      airflow connections add 'dwh_postgres' --conn-uri 'postgresql://airflow:${POSTGRES_PASSWORD}@dwh:5432/airflow' &&
       airflow users create 
       --username admin 
       --firstname admin 
