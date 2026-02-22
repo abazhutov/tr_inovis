@@ -5,8 +5,18 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup  
 from datetime import datetime
+from logger import write_log
 
 TABLE_NAME = 'customers'
+
+# Функции для логирования
+def task_success(context):
+    write_log(context, status=True)
+
+
+def task_failure(context):
+    exception = context.get("exception")
+    write_log(context, status=False, error=exception)
 
 #1. Получаем high water mark из DWH
 def get_high_water_mark(ti):
@@ -153,6 +163,10 @@ with DAG(
     start_date=datetime(2026, 2, 17),
     schedule_interval="@daily",
     catchup=False,
+    default_args={
+        "on_success_callback": task_success,
+        "on_failure_callback": task_failure
+    }
 ) as dag:
 
     t_get_high_water_mark = PythonOperator(

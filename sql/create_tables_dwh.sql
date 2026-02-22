@@ -32,7 +32,7 @@ commit;
 create unique index if not exists idx_dwh_fact_sales_customer_product ON dwh_fact_sales(customer_id, product_id);
 commit;
 
-create table if not exists etl_process_log (
+create table if not exists log (
     id bigserial primary key,
     dag_id text not null,
     task_id text not null,
