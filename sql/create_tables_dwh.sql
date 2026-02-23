@@ -32,7 +32,7 @@ commit;
 create unique index if not exists idx_dwh_fact_sales_customer_product ON dwh_fact_sales(customer_id, product_id);
 commit;
 
-create table if not exists log (
+create table if not exists airflow_log (
     id bigserial primary key,
     dag_id text not null,
     task_id text not null,
@@ -41,6 +41,15 @@ create table if not exists log (
     start_time timestamp not null,
     end_time timestamp not null,
     duration_seconds numeric(12,3) not null,
+    error_message text,
+    created_at timestamp default now()
+);
+create table if not exists action_log (
+    object_name text,
+    id bigint,
+    start_time timestamp,
+    end_time timestamp,
+    duration_seconds numeric(12,3),
     error_message text,
     created_at timestamp default now()
 );
