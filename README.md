@@ -1,4 +1,4 @@
-# Technical Specification for Inovis
+# Terms of Reference from the company "Inovis"
 
 ## Deploy the project:
 
@@ -7,6 +7,8 @@
 ```
     POSTGRES_PASSWORD
     AIRFLOW_ADMIN_PASS
+    AIRFLOW__WEBSERVER__SECRET_KEY
+    AIRFLOW__CORE__FERNET_KEY
 ```
 
 2.  Run the commands:
