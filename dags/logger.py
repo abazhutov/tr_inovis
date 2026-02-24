@@ -1,62 +1,33 @@
-from __future__ import annotations
-
-from datetime import datetime, timezone
-from typing import Any, Optional, Dict
-import traceback
-import json
-
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-
-
-POSTGRES_CONN_ID = "dwh_postgres"
-
+from datetime import datetime, timezone
+import traceback
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
+def write_log(context, status: str, error: Exception | None = None):
 
-def _serialize_exception(error: Exception) -> str:
-    return json.dumps(
-        {
-            "type": type(error).__name__,
-            "message": str(error),
-            "traceback": traceback.format_exception(
-                type(error), error, error.__traceback__
-            ),
-        },
-        ensure_ascii=False,
-    )
+    dag_id = context["dag"].dag_id
+    task_id = context["task_instance"].task_id
+    run_id = context["run_id"]
 
+    start_time = context["task_instance"].start_date
+    end_time = datetime._utcnow()
 
-def write_log(
-    context: Dict[str, Any],
-    status: str,
-    error: Optional[Exception] = None,
-) -> None:
-    """
-    Writes execution metadata of a task into etl_process_log table.
-    """
+    duration = (end_time - start_time).total_seconds()
 
-    ti = context["task_instance"]
-    dag = context["dag"]
+    error_message = None
+    if error:
+        error_message = "".join(
+            traceback.format_exception(type(error), error, error.__traceback__)
+        )
 
-    dag_id: str = dag.dag_id
-    task_id: str = ti.task_id
-    run_id: str = context["run_id"]
+    pg_hook = PostgresHook(postgres_conn_id="dwh_postgres")
+    conn = pg_hook.get_conn()
+    cursor = conn.cursor()
 
-    start_time: datetime = ti.start_date or _utcnow()
-    end_time: datetime = _utcnow()
-
-    duration_seconds: float = (
-        end_time - start_time
-    ).total_seconds()
-
-    error_payload: Optional[str] = (
-        _serialize_exception(error) if error else None
-    )
-
-    sql = """
-        insert into etl_process_log (
+    cursor.execute("""
+        insert into etl_process_log(
             dag_id,
             task_id,
             run_id,
@@ -67,23 +38,17 @@ def write_log(
             error_message
         )
         values (%s,%s,%s,%s,%s,%s,%s,%s)
-    """
+    """, (
+        dag_id,
+        task_id,
+        run_id,
+        status,
+        start_time,
+        end_time,
+        duration,
+        error_message
+    ))
 
-    hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
-
-    with hook.get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                sql,
-                (
-                    dag_id,
-                    task_id,
-                    run_id,
-                    status,
-                    start_time,
-                    end_time,
-                    duration_seconds,
-                    error_payload,
-                ),
-            )
-        conn.commit()
+    conn.commit()
+    cursor.close()
+    conn.close()
