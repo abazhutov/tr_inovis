@@ -70,7 +70,7 @@ def transform_to_stg():
             select id, name, groupname, updated_at
                 from (
                     select
-                        id::int,
+                        id::bigint,
                         name,
                         groupname,
                         updated_at::date as updated_at,

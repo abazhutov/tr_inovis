@@ -70,7 +70,7 @@ def transform_to_stg():
             select id, name, country, updated_at
                 from (
                     select
-                        id::int,
+                        id::bigint,
                         name::text,
                         country::text,
                         updated_at::date,

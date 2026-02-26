@@ -70,9 +70,9 @@ def transform_to_stg():
             select customer_id, product_id, qty, updated_at
                 from (
                     select
-                        customerId::int as customer_id,
-                        productId::int as product_id,
-                        qty::int,
+                        customerId::bigint as customer_id,
+                        productId::bigint as product_id,
+                        qty::bigint,
                         updated_at::date as updated_at,
                         row_number() over (
                             partition by customerId, productId
