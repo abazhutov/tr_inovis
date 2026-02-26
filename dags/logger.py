@@ -10,9 +10,11 @@ def write_log(context, status: str, error: Exception | None = None):
     dag_id = context["dag"].dag_id
     task_id = context["task_instance"].task_id
     run_id = context["run_id"]
+    
+    print(f"Logging for DAG: {dag_id}, Task: {task_id}, Run: {run_id}, Status: {status}")
 
     start_time = context["task_instance"].start_date
-    end_time = datetime._utcnow()
+    end_time = _utcnow()
 
     duration = (end_time - start_time).total_seconds()
 
@@ -27,7 +29,7 @@ def write_log(context, status: str, error: Exception | None = None):
     cursor = conn.cursor()
 
     cursor.execute("""
-        insert into etl_process_log(
+        insert into airflow_log(
             dag_id,
             task_id,
             run_id,

@@ -33,7 +33,6 @@ create unique index if not exists idx_dwh_fact_sales_customer_product ON dwh_fac
 commit;
 
 create table if not exists airflow_log (
-    id bigserial primary key,
     dag_id text not null,
     task_id text not null,
     run_id text not null,
